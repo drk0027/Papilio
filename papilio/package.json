@@ -1,0 +1,42 @@
+{
+  "name": "papilio",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "bootstrap": "^4.6.0",
+    "esdoc": "^1.1.0",
+    "esdoc-standard-plugin": "^1.0.0",
+    "fs": "0.0.1-security",
+    "gray-matter": "^4.0.2",
+    "js-cookie": "^2.2.1",
+    "jsonwebtoken": "^8.5.1",
+    "jwt-decode": "^3.1.2",
+    "markdown-it": "^12.0.4",
+    "mysql2": "^2.2.5",
+    "next": "10.0.7",
+    "next-connect": "^0.10.0",
+    "nprogress": "^0.2.0",
+    "pg": "^8.5.1",
+    "pg-hstore": "^2.3.3",
+    "postcss-preset-env": "^6.7.0",
+    "react": "17.0.1",
+    "react-bootstrap": "^1.5.1",
+    "react-dom": "17.0.1",
+    "react-markdown": "^5.0.3",
+    "react-redux": "^7.2.2",
+    "react-smde": "^1.1.0",
+    "sequelize": "^6.5.0",
+    "sqlite3": "^5.0.2"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.2.5",
+    "postcss": "^8.2.7",
+    "tailwindcss": "^2.0.3"
+  }
+}
