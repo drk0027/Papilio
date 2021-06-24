@@ -23,6 +23,37 @@ module.exports = function(app) {
     next();
   });
 
+  app.post(//VER MENSAJES DEL SISTEMA
+    "/api/user/ver_mensajes",
+    [authJwt.verifyToken, authJwt.isUser],
+    controller.ver_mensajes
+  );
+
+  app.get(//DESCARGAR ARCHIVO
+    "/api/user/descargar_archivo/:archivo",
+    [authJwt.verifyToken, authJwt.isUser],
+    controller.descargar_archivo
+  );
+
+  //SEGURIDAD
+  app.post(//ACTUALIZAR CONTRASEÑA
+    "/api/user/actualizar_password",
+    [authJwt.verifyToken, authJwt.isUser],
+    controller.actualizar_password
+  );
+  
+  app.post(//VER INFORMACION DE PERFIL PERSONAL
+    "/api/user/ver_perfil",
+    [authJwt.verifyToken, authJwt.isUser],
+    controller.ver_perfil
+  );
+  app.post(//ACTUALIZAR INFORMACION DE PERFIL PERSONAL
+    "/api/user/actualizar_perfil",
+    [authJwt.verifyToken, authJwt.isUser],
+    controller.actualizar_perfil
+  );
+  
+/*
   app.get("/api/test/all/:id", controller.allAccess);
 
   app.get(
@@ -122,12 +153,6 @@ module.exports = function(app) {
     [authJwt.verifyToken, authJwt.isUser],
     controller.ver_transporte
   );
-  /*
-  app.post(//VER TIPOS DE NEGOCIOS
-    "/api/usuario/ver_tipos_negocio",
-    [authJwt.verifyToken, authJwt.isUser],
-    controller.ver_tipos_negocio
-  );*/
   app.post(//CREAR NUEVO NEGOCIO
     "/api/usuario/crear_transporte",
     [authJwt.verifyToken, authJwt.isUser],
@@ -147,5 +172,5 @@ module.exports = function(app) {
     "/api/usuario/actualizar_imagen_transporte",
     [authJwt.verifyToken, authJwt.isUser,upload.array('archivos', 12)],
     controller.actualizar_imagen_transporte
-  );
+  );*/
 };

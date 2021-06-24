@@ -32,6 +32,7 @@ module.exports = (sequelize, Sequelize) => {
             estado: {
                 type: Sequelize.STRING,
                 allowNull:false,
+                defaultValue:"1"
             },
         });
     return Contactos;

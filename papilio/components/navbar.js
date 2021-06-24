@@ -34,8 +34,8 @@ export default function NavBar(props) {
                 <Navbar.Collapse id="basic-navbar-nav">
                     <Nav className="mr-auto">
                         <Nav.Link href="quienesomos">Sobre Nosotros</Nav.Link>
-                        <Nav.Link href="ofertas">Ofertas</Nav.Link>
                         <Nav.Link href="contacto">Contactenos</Nav.Link>
+                        <Nav.Link href="/Memorial/ver_memorias">Memorial</Nav.Link>
                     </Nav>
                     <Form inline>
                         <Nav.Link href="/Sesion/Inicio_sesion">Iniciar Sesion</Nav.Link>
@@ -54,10 +54,7 @@ export default function NavBar(props) {
                     <Navbar.Toggle aria-controls="basic-navbar-nav" />
                     <Navbar.Collapse id="basic-navbar-nav">
                         <Nav className="mr-auto">
-                            <Nav.Link href="/">Perfil</Nav.Link>
-                            <Nav.Link href="#link">Ofertas</Nav.Link>
-                            <Nav.Link href="#link">Archivo</Nav.Link>
-                            <Nav.Link href="#link">Administrador</Nav.Link>
+                            <Nav.Link href="/">Inicio</Nav.Link>
                         </Nav>
                         <Form inline>
                             <Button onClick={cerrar_sesion}>Cerrar Sesion</Button>
@@ -76,10 +73,9 @@ export default function NavBar(props) {
                     <Navbar.Collapse id="basic-navbar-nav">
                         <Nav className="mr-auto">
                             <Nav.Link href="/">Inicio</Nav.Link>
-                            <Nav.Link href="#link">Sobre Nosotros</Nav.Link>
-                            <Nav.Link href="#link">Ofertas</Nav.Link>
-                            <Nav.Link href="#link">Quienes Somos</Nav.Link>
-                            <Nav.Link href="#link">Perfil</Nav.Link>
+                            <Nav.Link href="quienesomos">Sobre Nosotros</Nav.Link>
+                            <Nav.Link href="contacto">Contactenos</Nav.Link>
+                            <Nav.Link href="/Memorial/ver_memorias">Memorial</Nav.Link>
                         </Nav>
                         <Form inline>
                             <Button onClick={cerrar_sesion}>Cerrar Sesion</Button>

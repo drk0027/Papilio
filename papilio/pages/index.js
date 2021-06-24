@@ -2,14 +2,19 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 import Link from 'next/link'
 import React, { useState, useEffect } from 'react';
+import { createRef } from 'react'
+
 
 import Layout from '../components/layout'
 import AdminBar from '../components/adminbar'
+import Userbar from '../components/userbar.js'
 import Inicio_admin from '../components/admin/inicio'
+import Inicio_user from '../components/user/inicio'
 import Inicio_public from '../components/public/inicio'
 import Container from 'react-bootstrap/Container';
 import Row from "react-bootstrap/Row"
 import Col from "react-bootstrap/Col"
+
 
 import AuthService from "../lib/AuthService"
 //import ServerAuthService from "../lib/ServerAuthService"
@@ -103,7 +108,6 @@ export async function getServerSideProps(context) {
 
 export default function Home(props) {
   const Auth = new AuthService()
-
   //este es el mapa de funciones para los formularios, controlara los estados de los campos y actualizara en caso de ser necesario
   //console.log(props.sistema.nombre_empresa)
 
@@ -173,10 +177,21 @@ export default function Home(props) {
       return (
         <Layout home login={props.isLoggedIn} token={props.token} info_sistema={props.info_sistema}>
           <Container fluid>
+            <Userbar />
             <Row>
-              <h3>Esto aparece solo si eres usuario normal</h3>
-              <p>Esto tal vez sea un dashboard, tampoco espero poner algo muy complejo, no me pagan lo suficiente para esto</p>
+              <Col>
+                <h3>Mensajes del sistema</h3>
+                <hr></hr>
+              </Col>
             </Row>
+            <Row>
+              <Col>
+                <p>Aqui puede leer las notificaciones que le son enviadas por el sistema.</p>
+              </Col>
+            </Row>
+            <Container fluid>
+                  <Inicio_user sistema={props.sistema} />
+            </Container>
           </Container>
         </Layout>
       )

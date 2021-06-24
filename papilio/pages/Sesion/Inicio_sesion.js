@@ -188,7 +188,6 @@ export default function Inicio_sesion(props) {
                                 Ingrese su contraseña
                             </Form.Text>
                         </Form.Group>
-                            <p>O <Link href="/Sesion/Registro">Registrarse en la Plataforma</Link></p>
                             <input type="submit" />
                         </div>
                     </form>

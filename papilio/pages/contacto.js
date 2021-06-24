@@ -142,39 +142,14 @@ export default function Home(props) {
       )*/
       return (// panel para usuarios admin
         <Layout home login={props.isLoggedIn} token={props.token} info_sistema={props.info_sistema}>
-          <Container fluid>
-            <AdminBar />
-            <Row>
-              <Col>
-                <h3>Configuracion del sistema</h3>
-                <hr></hr>
-              </Col>
-            </Row>
-            <Row>
-              <Col>
-                <p>Aqui se agregan las configuraciones del sistema, por ejemplo, Nombre de la empresa, Numero de Contacto, Correo, Propietario o Propietarios, Informacion Legal, cosas asi</p>
-              </Col>
-            </Row>
-            <Container>
-              <Row>
-                <Col>
-                  <Inicio_admin sistema={props.sistema} />
-                </Col>
-              </Row>
-            </Container>
-          </Container>
+          <Contacto info_sistema={props.info_sistema}></Contacto>
         </Layout>
       )
     }
     if (Auth.getPerfil(props.token).roles == 2) {  //panel para usuarios normales
       return (
         <Layout home login={props.isLoggedIn} token={props.token} info_sistema={props.info_sistema}>
-          <Container fluid>
-            <Row>
-              <h3>Esto aparece solo si eres usuario normal</h3>
-              <p>Esto tal vez sea un dashboard, tampoco espero poner algo muy complejo, no me pagan lo suficiente para esto</p>
-            </Row>
-          </Container>
+          <Contacto info_sistema={props.info_sistema}></Contacto>
         </Layout>
       )
     }

@@ -142,39 +142,14 @@ export default function Home(props) {
       )*/
       return (// panel para usuarios admin
         <Layout home login={props.isLoggedIn} token={props.token} info_sistema={props.info_sistema}>
-          <Container fluid>
-            <AdminBar />
-            <Row>
-              <Col>
-                <h3>Configuracion del sistema</h3>
-                <hr></hr>
-              </Col>
-            </Row>
-            <Row>
-              <Col>
-                <p>Aqui se agregan las configuraciones del sistema, por ejemplo, Nombre de la empresa, Numero de Contacto, Correo, Propietario o Propietarios, Informacion Legal, cosas asi</p>
-              </Col>
-            </Row>
-            <Container>
-              <Row>
-                <Col>
-                <h3>Vista admin</h3>
-                  
-                </Col>
-              </Row>
-            </Container>
-          </Container>
+          <Quienesomos/>
         </Layout>
       )
     }
     if (Auth.getPerfil(props.token).roles == 2) {  //panel para usuarios normales
       return (
         <Layout home login={props.isLoggedIn} token={props.token} info_sistema={props.info_sistema}>
-          <Container fluid>
-            <Row>
-              <h3>Vista Usuario</h3>
-            </Row>
-          </Container>
+          <Quienesomos/>
         </Layout>
       )
     }

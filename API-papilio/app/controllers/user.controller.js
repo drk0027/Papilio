@@ -5,6 +5,9 @@ const chalk = require('chalk');
 //MODELOS DE TIENDAS
 const tiendas = db.tiendas;
 const tipos_tienda = db.tipos_tienda;
+
+const mensajes = db.mensajes;
+const archivos = db.archivos;
 //MODELOS DE OFERTA
 const ofertas = db.ofertas;
 //MODELOS DE TRANSPORTE
@@ -14,20 +17,246 @@ const Op = db.Sequelize.Op;
 const jwt = require("jsonwebtoken");
 const config = require("../config/auth.config.js");
 var fs = require('fs');
+var bcrypt = require("bcryptjs");
 
 exports.allAccess = (req, res) => {
-    //res.status(200).send("por esta salida pueden ver lo que sea los usuarios");
-    const id = req.params.id;
-    //console.log(req.params.id);
+  //res.status(200).send("por esta salida pueden ver lo que sea los usuarios");
+  const id = req.params.id;
+  //console.log(req.params.id);
 
-    usuario.findAll()
+  usuario.findAll()
     .then(
       data => {
         res.send(data);
       }
     )
-  };
+};
+//VER MENSAJES DEL SISTEMA 
+exports.ver_mensajes = (req, res) => {
+  console.log(chalk.blue("Consulta de las cuentas de los usuarios"))
+
+  /*
+      Este controlador permite obtener al administrador ver la lista de cuentas del sistema
+  */
+  jwt.verify(req.headers['x-access-token'], config.secret, (err, decoded) => {
+    if (err) {
+      return res.status(401).send({
+        message: "Acceso no Autorizado"
+      });
+    }
+    //console.log(decoded)
+    id_usuario = decoded.id;
+    //next();
+  });
+
+  //console.log(req.body)
+  var donde = {
+    ...req.body.Donde,
+    id_usuario: id_usuario
+  }
+  /*var columnas=req.body.Columnas
+  columnas.push("nombre")
+  columnas.push("nombre_original")
+  columnas.push("ext")
+  columnas.push("size")
+  console.log(columnas)*/
+
+  mensajes.findAll({
+    attributes: req.body.Columnas,
+    limit: req.body.Limite,
+    order: req.body.Orden,
+    where: donde,
+    include:{
+      model:archivos,
+      attributes:[
+        "nombre",
+        "nombre_original",
+        "ext",
+        "size"
+      ]
+    }
+  }).then(resp => {
+    usuarios.count({
+      limit: req.body.Limite,
+      order: req.body.Orden,
+      where: donde
+    }).then(resp1 => {
+      res.status(200).send({ success: { solicitud_contacto: resp, cantidad: resp1 } })
+    }).catch(err => {
+      res.status(200).send({ error: err })
+    })
+  }).catch(err => {
+    res.status(200).send({ error: err })
+  })
+
+};
+
+exports.descargar_archivo = (req, res) => {
+
+  res.sendFile(process.cwd()+"/uploads/"+req.params.archivo)
+  //res.status(200).send("por esta salida pueden ver lo que sea los usuarios");
   
+};
+
+//SEGURIDAD
+exports.actualizar_password = (req, res) => {
+  console.log(chalk.red("Actualizar contraseña del usuario"))
+
+  /*
+      Este controlador permite obtener al administrador la lista de variables del entorno, se utiliza para actualizar las configuraciones del sistema
+  */
+
+  jwt.verify(req.headers['x-access-token'], config.secret, (err, decoded) => {
+      if (err) {
+          return res.status(401).send({
+              message: "Unauthorized!"
+          });
+      }
+      //console.log(decoded)
+      id_usuario = decoded.id;
+      //next();
+  });
+
+  /*bcrypt.compareSync(
+
+  )*/
+
+  console.log(req.body.donde.a_password)
+  //res.status(200).send({ success: "actualizado" })
+  //consultar si la a_password coincide con la almacenada en la base de datos
+  usuarios.findOne({
+      where: {
+          id_usuario: id_usuario
+      }
+  }).then(resp => {
+      //comparo si las contraseñas coinciden
+      //console.log(resp)
+      console.log(bcrypt.compareSync(req.body.donde.a_password, resp.dataValues.password))
+      if (bcrypt.compareSync(req.body.donde.a_password, resp.dataValues.password) == true) {
+          console.log("las contraseñas coinciden")
+          //confirmo si las nuevas coinciden
+          if (req.body.donde.n_password == req.body.donde.r_password) {
+              //si se cumple todo esto, actualizo la contraseña
+
+              usuarios.update({
+                  password: bcrypt.hashSync(req.body.donde.n_password, 8)
+              }, {
+                  where: {
+                      id_usuario: id_usuario
+                  }
+              }).then(resp => {
+                  res.status(200).send({ success: "actualizado" })
+              }).catch(err => {
+                  res.status(200).send({ error: err })
+              })
+          } else {
+              res.status(200).send({ error: "La contraseña nueva y repetida no coinciden" })
+          }
+      } else {
+          res.status(200).send({ error: "Las contraseñas no coinciden" })
+      }
+
+  }).catch(err => {
+    res.status(200).send({ error: err })
+  })
+
+  //en caso de coincidir, registrar la nueva contraseña, siempre y cuando coincida con la repeticion
+
+  /*contactos.destroy({
+      where:req.body.donde
+  }).then(resp => {
+      res.status(200).send({ success: resp })
+  }).catch(err=>{
+      res.status(200).send({ error: err })
+  })
+  */
+
+};
+
+exports.ver_perfil = (req, res) => {
+  console.log(chalk.blue("Consulta de la informacion personal del usuario"))
+
+  /*
+      Este controlador permite visualizar la informacion del usuario
+  */
+  jwt.verify(req.headers['x-access-token'], config.secret, (err, decoded) => {
+    if (err) {
+      return res.status(401).send({
+        message: "Acceso no Autorizado"
+      });
+    }
+    //console.log(decoded)
+    id_usuario = decoded.id;
+    //next();
+  });
+
+  usuarios.findOne({
+    attributes:[
+      "id_usuario",
+      "nombres",
+      "apellidos",
+      "cedula",
+      "email",
+      "email2",
+      "direccion1",
+      "direccion2",
+      "telefono1",
+      "telefono2"
+    ],
+    where:{
+      id_usuario:id_usuario
+    }
+  }).then(resp=>{
+    res.status(200).send({ success: resp })
+  }).catch(err=>{
+    res.status(200).send({ error: err })
+  })
+
+};
+
+exports.actualizar_perfil = (req, res) => {
+  console.log(chalk.red("Actualizar perfil del usuario"))
+
+  /*
+      Este controlador permite obtener al administrador la lista de variables del entorno, se utiliza para actualizar las configuraciones del sistema
+  */
+
+  jwt.verify(req.headers['x-access-token'], config.secret, (err, decoded) => {
+      if (err) {
+          return res.status(401).send({
+              message: "Unauthorized!"
+          });
+      }
+      //console.log(decoded)
+      id_usuario = decoded.id;
+      //next();
+  });
+
+  /*bcrypt.compareSync(
+
+  )*/
+
+  console.log(req.body.donde)
+  //res.status(200).send({ success: "actualizado" })
+  //consultar si la a_password coincide con la almacenada en la base de datos
+  usuarios.update(
+    req.body.donde,
+    {
+    where:{
+      id_usuario:id_usuario
+    }
+  }
+
+  ).then(resp=>{
+    res.status(200).send({ success: "actualizado" })
+  }).catch(err=>{
+
+  })
+
+};
+
+
+//-----------------------------------------------------------------------  
 exports.userBoard = (req, res) => {
   res.status(200).send("User Content.");
 };
@@ -56,21 +285,21 @@ exports.actualizar_usuario = (req, res) => {//el usuario solo puede ver informac
     //next();
   });
   console.log(req.body.columnas.split("|")[2])
-  usuarios.update({ 
-      email2: req.body.columnas.split("|")[0],
-      telefono1: req.body.columnas.split("|")[1],
-      telefono2: req.body.columnas.split("|")[2],
-      direccion1: req.body.columnas.split("|")[3] 
-    }, {
+  usuarios.update({
+    email2: req.body.columnas.split("|")[0],
+    telefono1: req.body.columnas.split("|")[1],
+    telefono2: req.body.columnas.split("|")[2],
+    direccion1: req.body.columnas.split("|")[3]
+  }, {
     where: {
       id_usuario: id_usuario
     }
   }).then(
-    data=>{
-      res.status(200).send({success:data})
+    data => {
+      res.status(200).send({ success: data })
     }
   )
-  ;
+    ;
 
 };
 //VER INFORMACION DE PERFIL DE USUARIO
@@ -91,7 +320,7 @@ exports.userinfo = (req, res) => {//el usuario solo puede ver informacion sobre 
 
   //console.log(res)
   usuarios.findAll({
-    attributes:[
+    attributes: [
       "nombre_usuario",
       "email",
       "email2",
@@ -101,15 +330,15 @@ exports.userinfo = (req, res) => {//el usuario solo puede ver informacion sobre 
       "direccion2",
       "createdAt"
     ],
-    where:{
-      id_usuario:id_usuario
+    where: {
+      id_usuario: id_usuario
     }
   })
     .then(
       data => {
         //console.log(data)
         //data={"success":data}
-        res.status(200).send({success:data});
+        res.status(200).send({ success: data });
       }
     )
 
@@ -130,19 +359,19 @@ exports.crear_negocio = (req, res) => {//el usuario solo puede ver informacion s
     //next();
   });
 
-  
+
   let date_ob = new Date();
 
   const crypto = require('crypto')
   var timestamp = new Date().getTime();
   //console.log(timestamp.toString(10))
-  nombre_archivo=crypto.createHash('md5').update(timestamp.toString(10)).digest("hex");
+  nombre_archivo = crypto.createHash('md5').update(timestamp.toString(10)).digest("hex");
   //copiar imagen temporal con el nombre definitivo
-  fs.createReadStream("./uploads/tienda_predeterminada.png").pipe(fs.createWriteStream("./uploads/"+nombre_archivo+".png"));
+  fs.createReadStream("./uploads/tienda_predeterminada.png").pipe(fs.createWriteStream("./uploads/" + nombre_archivo + ".png"));
   //console.log(nombre_archivo)
   //console.log("./uploads/"+nombre_archivo+".png")
   //console.log(req.body.columnas.split("|"))
-  tiendas.create({ 
+  tiendas.create({
     nombre: req.body.columnas.split("|")[0],
     descripcion: req.body.columnas.split("|")[1],
     direccion: req.body.columnas.split("|")[2],
@@ -150,22 +379,22 @@ exports.crear_negocio = (req, res) => {//el usuario solo puede ver informacion s
     telefono2: req.body.columnas.split("|")[4],
     correo1: req.body.columnas.split("|")[5],
     correo2: req.body.columnas.split("|")[6],
-    img: nombre_archivo+".png",
-    estado_validacion:"Sin Validacion",
-    estado:"Activo",
+    img: nombre_archivo + ".png",
+    estado_validacion: "Sin Validacion",
+    estado: "Activo",
     id_usuario: id_usuario,
     id_tipo_tienda: req.body.columnas.split("|")[7],
-    }
+  }
   ).then(
-    data=>{
+    data => {
       //esta salida devuelve los datos pertenecientes al ultimo ingreso, de esta manera, es posible hacer un update para guardar la imagen luego usando otro protoculo
       //console.log("resultado:" +data)
-      res.status(200).send({success:data});
+      res.status(200).send({ success: data });
     }
   ).catch(function (err) {
     // handle error;
     //console.log(err)
-    res.status(200).send({error:err});
+    res.status(200).send({ error: err });
   });
 };
 //ACTUALIZAR IMAGEN NEGOCIO
@@ -183,67 +412,67 @@ exports.actualizar_imagen_negocio = (req, res) => {//actualizar imagenes para el
   });
   //console.log(req.files)
   //console.log('Body- ' + JSON.stringify(req.body));
-  
+
 
   //establecer si el formato de la imagen es el correcto
   //console.log("el archivo es de tipo " +req.files[0].mimetype.split("/")[0] + " y tiene la extension "+req.files[0].originalname.split(".")[req.files[0].originalname.split(".").length-1])
   //console.log(req.files.length)
-  if(req.files.length>0){
-    if(req.files[0].mimetype.split("/")[0]=='image'){
+  if (req.files.length > 0) {
+    if (req.files[0].mimetype.split("/")[0] == 'image') {
       //borramos la imagen temporal
       try {
         //console.log("./uploads/"+ req.body.img)
-        fs.unlinkSync("./uploads/"+ req.body.img)
-      } catch(err) {
+        fs.unlinkSync("./uploads/" + req.body.img)
+      } catch (err) {
         //console.error(err)
-        res.status(200).send({error:"No se pudo eliminar la imagen"})
+        res.status(200).send({ error: "No se pudo eliminar la imagen" })
       }
       //copiamos la imagen nueva con el nombre temporal
-      try{
+      try {
         /*console.log("++++++++++++++++++++++++++++")
         console.log(req.body.img.split(".")[0])
         console.log(req.files[0].originalname.split("."))
         console.log(req.files[0].originalname.split(".")[req.files[0].originalname.split(".").length-1])
         console.log(req.files[0].path)
         console.log("++++++++++++++++++++++++++++")
-        */ 
-        fs.createReadStream(req.files[0].path).pipe(fs.createWriteStream(req.files[0].destination+"/"+req.body.img.split(".")[0]+"."+req.files[0].originalname.split(".")[req.files[0].originalname.split(".").length-1]))
-      }catch(err) {
+        */
+        fs.createReadStream(req.files[0].path).pipe(fs.createWriteStream(req.files[0].destination + "/" + req.body.img.split(".")[0] + "." + req.files[0].originalname.split(".")[req.files[0].originalname.split(".").length - 1]))
+      } catch (err) {
         console.error(err)
       }
       //eliminamos la imagen original
       try {
         fs.unlinkSync(req.files[0].path)
-      } catch(err) {
+      } catch (err) {
         console.error(err)
       }
       //ahora hay que actualizar el campo en la base de datos para anunciar que la imagen ya existe
       //req.body.img+"."+req.files[0].originalname.split(".")[req.files[0].originalname.split(".").length-1]) nombre del archivo en la base de datos
-      let nueva_imagen=req.body.img.split(".")[0]+"."+req.files[0].originalname.split(".")[req.files[0].originalname.split(".").length-1]
-      tiendas.update({ 
+      let nueva_imagen = req.body.img.split(".")[0] + "." + req.files[0].originalname.split(".")[req.files[0].originalname.split(".").length - 1]
+      tiendas.update({
         img: nueva_imagen
       }, {
-      where: {
+        where: {
           id_tienda: req.body.id_tienda
         }
       }).then(
-        data=>{
+        data => {
           console.log("he guardado los datos")
         }
       );
 
-      return res.status(200).send({success:"imagen cargada correctamente"})
-    }else{
+      return res.status(200).send({ success: "imagen cargada correctamente" })
+    } else {
       try {
         fs.unlinkSync(req.files[0].path)
-      } catch(err) {
+      } catch (err) {
         console.error(err)
       }
-      return res.status(200).send({error:"el archivo no era una imagen"})
+      return res.status(200).send({ error: "el archivo no era una imagen" })
     }
   }
-  
-  res.status(200).send({success:"imagen actualizada exitosamente"});
+
+  res.status(200).send({ success: "imagen actualizada exitosamente" });
 };
 //ELIMINAR NEGOCIO
 exports.eliminar_negocio = (req, res) => {//el usuario solo puede ver informacion sobre si mismo 
@@ -260,50 +489,50 @@ exports.eliminar_negocio = (req, res) => {//el usuario solo puede ver informacio
     //next();
   });
 
-  let donde=[]
-  if(req.body.donde==""){
-    donde["id_usuario"]=id_usuario
-  }else{
+  let donde = []
+  if (req.body.donde == "") {
+    donde["id_usuario"] = id_usuario
+  } else {
     let obj = new Object()
-    obj["id_usuario"]=id_usuario
-    if(req.body.donde.split("|").length==2&&req.body.donde.split("|")[1]==""){
-      obj[req.body.donde.split("|")[0].split("=")[0]]=req.body.donde.split("|")[0].split("=")[1]
+    obj["id_usuario"] = id_usuario
+    if (req.body.donde.split("|").length == 2 && req.body.donde.split("|")[1] == "") {
+      obj[req.body.donde.split("|")[0].split("=")[0]] = req.body.donde.split("|")[0].split("=")[1]
       donde.push(obj)
-    }else{
+    } else {
       console.log("es una consulta masiva")
       req.body.donde.split("|")
-      .map(x=>{
-        let a=x.split("=")[0]
-        let b=x.split("=")[1]
-        let obj = new Object()
-        obj[a]=b
-        donde.push(obj)
-      })
+        .map(x => {
+          let a = x.split("=")[0]
+          let b = x.split("=")[1]
+          let obj = new Object()
+          obj[a] = b
+          donde.push(obj)
+        })
     }
   }
   //eliminar negocio tambien deberia eliminar la foto 
   tiendas.findAll({
-    where:donde
-  }).then(data=>{
+    where: donde
+  }).then(data => {
     console.log(data[0].img)
     try {
       //console.log("./uploads/"+ req.body.img)
-      fs.unlinkSync("./uploads/"+ data[0].img)
-    } catch(err) {
+      fs.unlinkSync("./uploads/" + data[0].img)
+    } catch (err) {
       //console.error(err)
-      res.status(200).send({error:"No se pudo eliminar la imagen"})
+      res.status(200).send({ error: "No se pudo eliminar la imagen" })
     }
   })
 
   tiendas.destroy({
-    where:donde
-  }).then( data=>{
+    where: donde
+  }).then(data => {
     console.log(data)
-    res.status(200).send({success:data})
-  }).catch(err=>{
-    res.status(200).send({error:err})
+    res.status(200).send({ success: data })
+  }).catch(err => {
+    res.status(200).send({ error: err })
   })
-  
+
 
 
 };
@@ -322,32 +551,32 @@ exports.actualizar_negocio = (req, res) => {//el usuario solo puede ver informac
     //next();
   });
 
-  let donde=[]
-  if(req.body.donde==""){
-    donde["id_usuario"]=id_usuario
-  }else{
+  let donde = []
+  if (req.body.donde == "") {
+    donde["id_usuario"] = id_usuario
+  } else {
     let obj = new Object()
-    obj["id_usuario"]=id_usuario
-    if(req.body.donde.split("|").length==2&&req.body.donde.split("|")[1]==""){
-      obj[req.body.donde.split("|")[0].split("=")[0]]=req.body.donde.split("|")[0].split("=")[1]
+    obj["id_usuario"] = id_usuario
+    if (req.body.donde.split("|").length == 2 && req.body.donde.split("|")[1] == "") {
+      obj[req.body.donde.split("|")[0].split("=")[0]] = req.body.donde.split("|")[0].split("=")[1]
       donde.push(obj)
-    }else{
+    } else {
       console.log("es una consulta masiva")
       req.body.donde.split("|")
-      .map(x=>{
-        let a=x.split("=")[0]
-        let b=x.split("=")[1]
-        let obj = new Object()
-        obj[a]=b
-        donde.push(obj)
-      })
+        .map(x => {
+          let a = x.split("=")[0]
+          let b = x.split("=")[1]
+          let obj = new Object()
+          obj[a] = b
+          donde.push(obj)
+        })
     }
   }
 
 
   console.log(req.body.columnas.split("|")[2])
   console.log(req.body)
-  tiendas.update({ 
+  tiendas.update({
     nombre: req.body.columnas.split("|")[0],
     descripcion: req.body.columnas.split("|")[1],
     direccion: req.body.columnas.split("|")[2],
@@ -356,21 +585,21 @@ exports.actualizar_negocio = (req, res) => {//el usuario solo puede ver informac
     correo1: req.body.columnas.split("|")[5],
     correo2: req.body.columnas.split("|")[6],
     img: req.body.columnas.split("|")[8],
-    estado_validacion:"Sin Validacion",
-    estado:"Activo",
+    estado_validacion: "Sin Validacion",
+    estado: "Activo",
     id_usuario: id_usuario,
     id_tipo_tienda: req.body.columnas.split("|")[7],
-    }, 
-    {where: donde}
+  },
+    { where: donde }
   )
-  .catch(function (err) {
-    // handle error;
-    console.log(err)
-    res.status(200).send({error:err});
-  });
+    .catch(function (err) {
+      // handle error;
+      console.log(err)
+      res.status(200).send({ error: err });
+    });
 
   tiendas.findAll({
-    attributes:[
+    attributes: [
       "id_tienda",
       "nombre",
       "descripcion",
@@ -383,12 +612,12 @@ exports.actualizar_negocio = (req, res) => {//el usuario solo puede ver informac
       "estado_validacion",
       "estado"
     ],
-    where:donde,
-    include:tipos_tienda
+    where: donde,
+    include: tipos_tienda
   }).then(data => {
     console.log("DATOS ACTUALIZADOS")
     //console.log(data)
-    res.status(200).send({success:data})
+    res.status(200).send({ success: data })
   })
 
 };
@@ -406,45 +635,45 @@ exports.ver_negocio = (req, res) => {//el usuario solo puede ver informacion sob
     //next();
   });
   console.log(req.body)
-  
-  let donde=[]
-  let limite=10
-  let off=0
-  
-  let orden=[req.body.orden.split(" ")[0],req.body.orden.split(" ")[1]]
+
+  let donde = []
+  let limite = 10
+  let off = 0
+
+  let orden = [req.body.orden.split(" ")[0], req.body.orden.split(" ")[1]]
   console.log(orden)
-  
-  if(req.body.donde==""){
-    donde["id_usuario"]=id_usuario
-  }else{
+
+  if (req.body.donde == "") {
+    donde["id_usuario"] = id_usuario
+  } else {
     let obj = new Object()
-    obj["id_usuario"]=id_usuario
-    if(req.body.donde.split("|").length==2&&req.body.donde.split("|")[1]==""){
-      obj[req.body.donde.split("|")[0].split("=")[0]]=req.body.donde.split("|")[0].split("=")[1]
+    obj["id_usuario"] = id_usuario
+    if (req.body.donde.split("|").length == 2 && req.body.donde.split("|")[1] == "") {
+      obj[req.body.donde.split("|")[0].split("=")[0]] = req.body.donde.split("|")[0].split("=")[1]
       donde.push(obj)
-    }else{
+    } else {
       console.log("es una consulta masiva")
       req.body.donde.split("|")
-      .map(x=>{
-        let a=x.split("=")[0]
-        let b=x.split("=")[1]
-        let obj = new Object()
-        obj[a]=b
-        donde.push(obj)
-      })
+        .map(x => {
+          let a = x.split("=")[0]
+          let b = x.split("=")[1]
+          let obj = new Object()
+          obj[a] = b
+          donde.push(obj)
+        })
     }
   }
 
-  if(req.body.limite!=""){
-    let limite=req.body.limite.split(",")[1]
-    let off=req.body.limite.split(",")[0]
-  }else{
-    let limite=10
-    let off=0
+  if (req.body.limite != "") {
+    let limite = req.body.limite.split(",")[1]
+    let off = req.body.limite.split(",")[0]
+  } else {
+    let limite = 10
+    let off = 0
   }
 
   tiendas.findAll({
-    attributes:[
+    attributes: [
       "id_tienda",
       "nombre",
       "descripcion",
@@ -457,27 +686,27 @@ exports.ver_negocio = (req, res) => {//el usuario solo puede ver informacion sob
       "estado_validacion",
       "estado"
     ],
-    where:donde,
-    limit:limite,
-    offset:off,
-    order:[
+    where: donde,
+    limit: limite,
+    offset: off,
+    order: [
       orden
     ],
-    include:tipos_tienda
+    include: tipos_tienda
   })
     .then(
       data => {
         //console.log(data)
         //data={"success":data}
         tiendas.count({
-          where:donde
+          where: donde
         }).then(
-          count =>{
-            res.status(200).send({success:data,count:count});
+          count => {
+            res.status(200).send({ success: data, count: count });
           }
         )
 
-        
+
       }
     )
 
@@ -496,60 +725,60 @@ exports.ver_tipos_negocio = (req, res) => {//el usuario solo puede ver informaci
     //next();
   });
 
-  
-  let donde=[]
-  let limite=10
-  let off=0
+
+  let donde = []
+  let limite = 10
+  let off = 0
   console.log(req.body)
   console.log(req.body.donde)
-  if(req.body.donde==""){
-    donde["id_usuario"]=id_usuario
-  }else{
+  if (req.body.donde == "") {
+    donde["id_usuario"] = id_usuario
+  } else {
     let obj = new Object()
-    obj["id_usuario"]=id_usuario
-    if(req.body.donde.split("|").length==2&&req.body.donde.split("|")[1]==""){
-      obj[req.body.donde.split("|")[0].split("=")[0]]=req.body.donde.split("|")[0].split("=")[1]
+    obj["id_usuario"] = id_usuario
+    if (req.body.donde.split("|").length == 2 && req.body.donde.split("|")[1] == "") {
+      obj[req.body.donde.split("|")[0].split("=")[0]] = req.body.donde.split("|")[0].split("=")[1]
       donde.push(obj)
-    }else{
+    } else {
       console.log("es una consulta masiva")
       req.body.donde.split("|")
-      .map(x=>{
-        let a=x.split("=")[0]
-        let b=x.split("=")[1]
-        let obj = new Object()
-        obj[a]=b
-        donde.push(obj)
-      })
+        .map(x => {
+          let a = x.split("=")[0]
+          let b = x.split("=")[1]
+          let obj = new Object()
+          obj[a] = b
+          donde.push(obj)
+        })
     }
   }
 
-  if(req.body.limite!=""){
-    let limite=req.body.limite.split(",")[1]
-    let off=req.body.limite.split(",")[0]
-  }else{
-    let limite=10
-    let off=0
+  if (req.body.limite != "") {
+    let limite = req.body.limite.split(",")[1]
+    let off = req.body.limite.split(",")[0]
+  } else {
+    let limite = 10
+    let off = 0
   }
 
   tipos_tienda.findAll({
-    attributes:[
+    attributes: [
       "id_tipo_tienda",
       "nombre",
       "descripcion",
     ],
-    where:donde,
-    limit:limite,
-    offset:off,
+    where: donde,
+    limit: limite,
+    offset: off,
   })
     .then(
       data => {
         //console.log(data)
         //data={"success":data}
         tipos_tienda.count({
-          where:donde
+          where: donde
         }).then(
-          count =>{
-            res.status(200).send({success:data,count:count});
+          count => {
+            res.status(200).send({ success: data, count: count });
           }
         )
       }
@@ -573,42 +802,42 @@ exports.ver_oferta = (req, res) => {//el usuario solo puede ver informacion sobr
     //next();
   });
   console.log(req.body)
-  
-  let donde=[]
-  let limite=10
-  let off=0
-  
-  let orden=[req.body.orden.split(" ")[0],req.body.orden.split(" ")[1]]
+
+  let donde = []
+  let limite = 10
+  let off = 0
+
+  let orden = [req.body.orden.split(" ")[0], req.body.orden.split(" ")[1]]
   //console.log(orden)
-  
-  if(req.body.donde==""){
+
+  if (req.body.donde == "") {
     //donde["id_usuario"]=id_usuario
-    donde["id_oferta"]=req.body.donde.split("|")[0].split("=")[1]
-  }else{
+    donde["id_oferta"] = req.body.donde.split("|")[0].split("=")[1]
+  } else {
     let obj = new Object()
     //obj["id_usuario"]=id_usuario
-    if(req.body.donde.split("|").length==2&&req.body.donde.split("|")[1]==""){
-      obj[req.body.donde.split("|")[0].split("=")[0]]=req.body.donde.split("|")[0].split("=")[1]
+    if (req.body.donde.split("|").length == 2 && req.body.donde.split("|")[1] == "") {
+      obj[req.body.donde.split("|")[0].split("=")[0]] = req.body.donde.split("|")[0].split("=")[1]
       donde.push(obj)
-    }else{
+    } else {
       console.log("es una consulta masiva")
       req.body.donde.split("|")
-      .map(x=>{
-        let a=x.split("=")[0]
-        let b=x.split("=")[1]
-        let obj = new Object()
-        obj[a]=b
-        donde.push(obj)
-      })
+        .map(x => {
+          let a = x.split("=")[0]
+          let b = x.split("=")[1]
+          let obj = new Object()
+          obj[a] = b
+          donde.push(obj)
+        })
     }
   }
 
-  if(req.body.limite!=""){
-    let limite=req.body.limite.split(",")[1]
-    let off=req.body.limite.split(",")[0]
-  }else{
-    let limite=10
-    let off=0
+  if (req.body.limite != "") {
+    let limite = req.body.limite.split(",")[1]
+    let off = req.body.limite.split(",")[0]
+  } else {
+    let limite = 10
+    let off = 0
   }
   //buscar negocio y si le pertenece al usuario, mostrar los datos solicitados
 
@@ -616,7 +845,7 @@ exports.ver_oferta = (req, res) => {//el usuario solo puede ver informacion sobr
   //console.log(donde)
   //console.time(req.body)
   ofertas.findAll({
-    attributes:[
+    attributes: [
       "id_oferta",
       "nombre",
       "descripcion",
@@ -626,32 +855,32 @@ exports.ver_oferta = (req, res) => {//el usuario solo puede ver informacion sobr
       "estado",
       "id_tienda"
     ],
-    limit:limite,
-    offset:off,
-    order:[
+    limit: limite,
+    offset: off,
+    order: [
       orden
     ],
-    include:tiendas,
-    where:donde
-  }).then(resp=>{
+    include: tiendas,
+    where: donde
+  }).then(resp => {
     //console.log(resp)
     tiendas.findAll({
-      where:{
-        id_tienda:resp[0].id_tienda,
-        id_usuario:id_usuario
+      where: {
+        id_tienda: resp[0].id_tienda,
+        id_usuario: id_usuario
       }
-    }).then(resp2=>{
+    }).then(resp2 => {
       console.log("verificado que esto pertenece a un usuario, se procede a mostrar los resultados \n")
       ofertas.count({
-        where:{
-          id_oferta:resp[0].id_oferta
+        where: {
+          id_oferta: resp[0].id_oferta
         }
-      }).then(count =>{
-        res.status(200).send({success:resp,count:count});
+      }).then(count => {
+        res.status(200).send({ success: resp, count: count });
       })
     })
-  }).catch(err=>{
-    res.status(200).send({error:err})
+  }).catch(err => {
+    res.status(200).send({ error: err })
   })
 
   /*
@@ -701,28 +930,28 @@ exports.crear_oferta = (req, res) => {//el usuario solo puede ver informacion so
     //next();
   });
 
-  
+
   let date_ob = new Date();
 
   const crypto = require('crypto')
   var timestamp = new Date().getTime();
-  nombre_archivo=crypto.createHash('md5').update(timestamp.toString(10)).digest("hex");
-  fs.createReadStream("./uploads/producto_predeterminado.png").pipe(fs.createWriteStream("./uploads/"+nombre_archivo+".png"));
-  ofertas.create({ 
+  nombre_archivo = crypto.createHash('md5').update(timestamp.toString(10)).digest("hex");
+  fs.createReadStream("./uploads/producto_predeterminado.png").pipe(fs.createWriteStream("./uploads/" + nombre_archivo + ".png"));
+  ofertas.create({
     nombre: req.body.columnas.split("|")[0],
     descripcion: req.body.columnas.split("|")[1],
     precio: req.body.columnas.split("|")[2],
-    img: nombre_archivo+".png",
-    estado:"Activo",
+    img: nombre_archivo + ".png",
+    estado: "Activo",
     tipo: req.body.columnas.split("|")[4],
     id_tienda: req.body.columnas.split("|")[5],
-    }
+  }
   ).then(
-    data=>{
-      res.status(200).send({success:data});
+    data => {
+      res.status(200).send({ success: data });
     }
   ).catch(function (err) {
-    res.status(200).send({error:err});
+    res.status(200).send({ error: err });
   });
 };
 //ACTUALIZAR IMAGEN OFERTA
@@ -736,46 +965,46 @@ exports.actualizar_imagen_oferta = (req, res) => {//actualizar imagenes para el 
     }
     id_usuario = decoded.id;
   });
-  if(req.files.length>0){
-    if(req.files[0].mimetype.split("/")[0]=='image'){
+  if (req.files.length > 0) {
+    if (req.files[0].mimetype.split("/")[0] == 'image') {
       try {
-        fs.unlinkSync("./uploads/"+ req.body.img)
-      } catch(err) {
-        res.status(200).send({error:"No se pudo eliminar la imagen"})
+        fs.unlinkSync("./uploads/" + req.body.img)
+      } catch (err) {
+        res.status(200).send({ error: "No se pudo eliminar la imagen" })
       }
-      try{
-        fs.createReadStream(req.files[0].path).pipe(fs.createWriteStream(req.files[0].destination+"/"+req.body.img.split(".")[0]+"."+req.files[0].originalname.split(".")[req.files[0].originalname.split(".").length-1]))
-      }catch(err) {
+      try {
+        fs.createReadStream(req.files[0].path).pipe(fs.createWriteStream(req.files[0].destination + "/" + req.body.img.split(".")[0] + "." + req.files[0].originalname.split(".")[req.files[0].originalname.split(".").length - 1]))
+      } catch (err) {
         console.error(err)
       }
 
       try {
         fs.unlinkSync(req.files[0].path)
-      } catch(err) {
+      } catch (err) {
         console.error(err)
       }
-      let nueva_imagen=req.body.img.split(".")[0]+"."+req.files[0].originalname.split(".")[req.files[0].originalname.split(".").length-1]
-      ofertas.update({ 
+      let nueva_imagen = req.body.img.split(".")[0] + "." + req.files[0].originalname.split(".")[req.files[0].originalname.split(".").length - 1]
+      ofertas.update({
         img: nueva_imagen
       }, {
-      where: {
+        where: {
           id_oferta: req.body.id_oferta
         }
-      }).then(data=>{
+      }).then(data => {
         //console.log("he guardado los datos")
         //res.status(200).send({success:"imagen guardada correctamente"})
       });
-      return res.status(200).send({success:"imagen cargada correctamente"})
-    }else{
+      return res.status(200).send({ success: "imagen cargada correctamente" })
+    } else {
       try {
         fs.unlinkSync(req.files[0].path)
-      } catch(err) {
+      } catch (err) {
         console.error(err)
       }
-      return res.status(200).send({error:"el archivo no era una imagen"})
+      return res.status(200).send({ error: "el archivo no era una imagen" })
     }
   }
-  res.status(200).send({success:"imagen actualizada exitosamente"});
+  res.status(200).send({ success: "imagen actualizada exitosamente" });
 };
 //ELIMINAR OFERTA
 exports.eliminar_oferta = (req, res) => {//el usuario solo puede ver informacion sobre si mismo 
@@ -790,67 +1019,67 @@ exports.eliminar_oferta = (req, res) => {//el usuario solo puede ver informacion
     id_usuario = decoded.id;
   });
 
-  let donde=[]
-  if(req.body.donde==""){
-    donde["id_usuario"]=id_usuario
-  }else{
+  let donde = []
+  if (req.body.donde == "") {
+    donde["id_usuario"] = id_usuario
+  } else {
     let obj = new Object()
-    obj["id_usuario"]=id_usuario
-    if(req.body.donde.split("|").length==2&&req.body.donde.split("|")[1]==""){
-      obj[req.body.donde.split("|")[0].split("=")[0]]=req.body.donde.split("|")[0].split("=")[1]
+    obj["id_usuario"] = id_usuario
+    if (req.body.donde.split("|").length == 2 && req.body.donde.split("|")[1] == "") {
+      obj[req.body.donde.split("|")[0].split("=")[0]] = req.body.donde.split("|")[0].split("=")[1]
       donde.push(obj)
-    }else{
+    } else {
       console.log("es una consulta masiva")
       req.body.donde.split("|")
-      .map(x=>{
-        let a=x.split("=")[0]
-        let b=x.split("=")[1]
-        let obj = new Object()
-        obj[a]=b
-        donde.push(obj)
-      })
+        .map(x => {
+          let a = x.split("=")[0]
+          let b = x.split("=")[1]
+          let obj = new Object()
+          obj[a] = b
+          donde.push(obj)
+        })
     }
   }
   //verificar si el negocio al que pertenece la oferta, pertencece al usuario
   //console.log(donde)
   //console.log(req.body.donde.split("|")[0].split("=")[1])
   ofertas.findAll({
-    where:{
-      id_oferta:req.body.donde.split("|")[0].split("=")[1]
+    where: {
+      id_oferta: req.body.donde.split("|")[0].split("=")[1]
     }
-  }).then(resultado=>{
+  }).then(resultado => {
     console.log(resultado[0])
-    if(resultado[0]!==undefined){
+    if (resultado[0] !== undefined) {
       tiendas.findAll({
-        where:{
-          id_tienda:resultado[0].id_tienda,
-          id_usuario:id_usuario
+        where: {
+          id_tienda: resultado[0].id_tienda,
+          id_usuario: id_usuario
         }
-      }).then(resultado2=>{
+      }).then(resultado2 => {
         ///si llega aqui es porque la tienda existe y pertenece al usuario, se procede a borrar la oferta y su imagen
         //console.log(resultado2)
 
         //console.log(resultado[0].img)
         try {
-          fs.unlinkSync("./uploads/"+ resultado[0].img)
-        } catch(err) {
+          fs.unlinkSync("./uploads/" + resultado[0].img)
+        } catch (err) {
           console.error(err)
           //res.status(200).send({error:"No se pudo eliminar la imagen"})
         }
-        
+
         ofertas.destroy({
-          where:{
-            id_oferta:resultado[0].id_oferta
+          where: {
+            id_oferta: resultado[0].id_oferta
           }
-        }).then( data=>{
+        }).then(data => {
           console.log(data)
-          res.status(200).send({success:data})
-        }).catch(err=>{
-          res.status(200).send({error:err})
+          res.status(200).send({ success: data })
+        }).catch(err => {
+          res.status(200).send({ error: err })
         })
       })
-    }else{
-      res.status(200).send({error:"Ha intentado una operacion ilegal"})
+    } else {
+      res.status(200).send({ error: "Ha intentado una operacion ilegal" })
     }
   })
 };
@@ -869,33 +1098,33 @@ exports.actualizar_oferta = (req, res) => {//el usuario solo puede ver informaci
     //next();
   });
   //console.log(req.body)
-  let donde=[]
-  if(req.body.donde==""){
+  let donde = []
+  if (req.body.donde == "") {
     //donde["id_usuario"]=id_usuario
-    donde["id_oferta"]=req.body.donde.split("|")[0].split("=")[1]
-  }else{
+    donde["id_oferta"] = req.body.donde.split("|")[0].split("=")[1]
+  } else {
     let obj = new Object()
     //obj["id_usuario"]=id_usuario
-    if(req.body.donde.split("|").length==2&&req.body.donde.split("|")[1]==""){
-      obj[req.body.donde.split("|")[0].split("=")[0]]=req.body.donde.split("|")[0].split("=")[1]
+    if (req.body.donde.split("|").length == 2 && req.body.donde.split("|")[1] == "") {
+      obj[req.body.donde.split("|")[0].split("=")[0]] = req.body.donde.split("|")[0].split("=")[1]
       donde.push(obj)
-    }else{
+    } else {
       console.log("es una consulta masiva")
       req.body.donde.split("|")
-      .map(x=>{
-        let a=x.split("=")[0]
-        let b=x.split("=")[1]
-        let obj = new Object()
-        obj[a]=b
-        donde.push(obj)
-      })
+        .map(x => {
+          let a = x.split("=")[0]
+          let b = x.split("=")[1]
+          let obj = new Object()
+          obj[a] = b
+          donde.push(obj)
+        })
     }
   }
 
   //console.log(donde)
   //oootra vez, verifica que la oferta exista, que pertenezca a un negocio y este negocio pertenezca al usuario que hace la consulta
   ofertas.findAll({
-    attributes:[
+    attributes: [
       "id_oferta",
       "nombre",
       "descripcion",
@@ -905,48 +1134,48 @@ exports.actualizar_oferta = (req, res) => {//el usuario solo puede ver informaci
       "estado",
       "id_tienda"
     ],
-    include:tiendas,
-    where:donde
-  }).then(resp=>{
+    include: tiendas,
+    where: donde
+  }).then(resp => {
     console.log(resp)
     tiendas.findAll({
-      where:{
-        id_tienda:resp[0].id_tienda,
-        id_usuario:id_usuario
+      where: {
+        id_tienda: resp[0].id_tienda,
+        id_usuario: id_usuario
       }
-    }).then(resp2=>{
+    }).then(resp2 => {
       console.log("verificado que esto pertenece a un usuario, se procede a mostrar los resultados \n")
-      ofertas.update({ 
+      ofertas.update({
         nombre: req.body.columnas.split("|")[0],
         descripcion: req.body.columnas.split("|")[1],
         precio: req.body.columnas.split("|")[2],
         img: req.body.columnas.split("|")[3],
-        estado:"Activo",
+        estado: "Activo",
         tipo: req.body.columnas.split("|")[4],
         id_tienda: req.body.columnas.split("|")[5],
-        }, 
-        {where: donde}
+      },
+        { where: donde }
       )
-      .catch(function (err) {
-        console.log(err)
-        res.status(200).send({error:err});
-      });
-    
+        .catch(function (err) {
+          console.log(err)
+          res.status(200).send({ error: err });
+        });
+
       ofertas.findAll({
-        attributes:[
+        attributes: [
           "id_oferta",
           "nombre",
           "descripcion",
           "precio",
           "img",
         ],
-        where:donde,
+        where: donde,
       }).then(data => {
-        res.status(200).send({success:data})
+        res.status(200).send({ success: data })
       })
     })
-  }).catch(err=>{
-    res.status(200).send({error:err})
+  }).catch(err => {
+    res.status(200).send({ error: err })
   })
 };
 //CONTROLADORES DE TRANSPORTE
@@ -966,45 +1195,45 @@ exports.ver_transporte = (req, res) => {//el usuario solo puede ver informacion 
     //next();
   });
   console.log(req.body)
-  
-  let donde=[]
-  let limite=10
-  let off=0
-  
-  let orden=[req.body.orden.split(" ")[0],req.body.orden.split(" ")[1]]
+
+  let donde = []
+  let limite = 10
+  let off = 0
+
+  let orden = [req.body.orden.split(" ")[0], req.body.orden.split(" ")[1]]
   console.log(orden)
-  
-  if(req.body.donde==""){
-    donde["id_usuario"]=id_usuario
-  }else{
+
+  if (req.body.donde == "") {
+    donde["id_usuario"] = id_usuario
+  } else {
     let obj = new Object()
-    obj["id_usuario"]=id_usuario
-    if(req.body.donde.split("|").length==2&&req.body.donde.split("|")[1]==""){
-      obj[req.body.donde.split("|")[0].split("=")[0]]=req.body.donde.split("|")[0].split("=")[1]
+    obj["id_usuario"] = id_usuario
+    if (req.body.donde.split("|").length == 2 && req.body.donde.split("|")[1] == "") {
+      obj[req.body.donde.split("|")[0].split("=")[0]] = req.body.donde.split("|")[0].split("=")[1]
       donde.push(obj)
-    }else{
+    } else {
       console.log("es una consulta masiva")
       req.body.donde.split("|")
-      .map(x=>{
-        let a=x.split("=")[0]
-        let b=x.split("=")[1]
-        let obj = new Object()
-        obj[a]=b
-        donde.push(obj)
-      })
+        .map(x => {
+          let a = x.split("=")[0]
+          let b = x.split("=")[1]
+          let obj = new Object()
+          obj[a] = b
+          donde.push(obj)
+        })
     }
   }
 
-  if(req.body.limite!=""){
-    let limite=req.body.limite.split(",")[1]
-    let off=req.body.limite.split(",")[0]
-  }else{
-    let limite=10
-    let off=0
+  if (req.body.limite != "") {
+    let limite = req.body.limite.split(",")[1]
+    let off = req.body.limite.split(",")[0]
+  } else {
+    let limite = 10
+    let off = 0
   }
 
   transportes.findAll({
-    attributes:[
+    attributes: [
       "id_transporte",
       "nombre",
       "descripcion",
@@ -1017,10 +1246,10 @@ exports.ver_transporte = (req, res) => {//el usuario solo puede ver informacion 
       "estado_validacion",
       "estado"
     ],
-    where:donde,
-    limit:limite,
-    offset:off,
-    order:[
+    where: donde,
+    limit: limite,
+    offset: off,
+    order: [
       orden
     ],
   })
@@ -1029,10 +1258,10 @@ exports.ver_transporte = (req, res) => {//el usuario solo puede ver informacion 
         //console.log(data)
         //data={"success":data}
         transportes.count({
-          where:donde
+          where: donde
         }).then(
-          count =>{
-            res.status(200).send({success:data,count:count});
+          count => {
+            res.status(200).send({ success: data, count: count });
           }
         )
       }
@@ -1055,48 +1284,48 @@ exports.eliminar_transporte = (req, res) => {//el usuario solo puede ver informa
     //next();
   });
 
-  let donde=[]
-  if(req.body.donde==""){
-    donde["id_usuario"]=id_usuario
-  }else{
+  let donde = []
+  if (req.body.donde == "") {
+    donde["id_usuario"] = id_usuario
+  } else {
     let obj = new Object()
-    obj["id_usuario"]=id_usuario
-    if(req.body.donde.split("|").length==2&&req.body.donde.split("|")[1]==""){
-      obj[req.body.donde.split("|")[0].split("=")[0]]=req.body.donde.split("|")[0].split("=")[1]
+    obj["id_usuario"] = id_usuario
+    if (req.body.donde.split("|").length == 2 && req.body.donde.split("|")[1] == "") {
+      obj[req.body.donde.split("|")[0].split("=")[0]] = req.body.donde.split("|")[0].split("=")[1]
       donde.push(obj)
-    }else{
+    } else {
       console.log("es una consulta masiva")
       req.body.donde.split("|")
-      .map(x=>{
-        let a=x.split("=")[0]
-        let b=x.split("=")[1]
-        let obj = new Object()
-        obj[a]=b
-        donde.push(obj)
-      })
+        .map(x => {
+          let a = x.split("=")[0]
+          let b = x.split("=")[1]
+          let obj = new Object()
+          obj[a] = b
+          donde.push(obj)
+        })
     }
   }
   //eliminar negocio tambien deberia eliminar la foto 
   transportes.findAll({
-    where:donde
-  }).then(data=>{
+    where: donde
+  }).then(data => {
     console.log(data[0].img)
     try {
       //console.log("./uploads/"+ req.body.img)
-      fs.unlinkSync("./uploads/"+ data[0].img)
-    } catch(err) {
+      fs.unlinkSync("./uploads/" + data[0].img)
+    } catch (err) {
       //console.error(err)
-      res.status(200).send({error:"No se pudo eliminar la imagen"})
+      res.status(200).send({ error: "No se pudo eliminar la imagen" })
     }
   })
 
   transportes.destroy({
-    where:donde
-  }).then( data=>{
+    where: donde
+  }).then(data => {
     console.log(data)
-    res.status(200).send({success:data})
-  }).catch(err=>{
-    res.status(200).send({error:err})
+    res.status(200).send({ success: data })
+  }).catch(err => {
+    res.status(200).send({ error: err })
   })
 };
 //ACTUALIZAR TRANSPORTE
@@ -1116,32 +1345,32 @@ exports.actualizar_transporte = (req, res) => {//el usuario solo puede ver infor
     //next();
   });
 
-  let donde=[]
-  if(req.body.donde==""){
-    donde["id_usuario"]=id_usuario
-  }else{
+  let donde = []
+  if (req.body.donde == "") {
+    donde["id_usuario"] = id_usuario
+  } else {
     let obj = new Object()
-    obj["id_usuario"]=id_usuario
-    if(req.body.donde.split("|").length==2&&req.body.donde.split("|")[1]==""){
-      obj[req.body.donde.split("|")[0].split("=")[0]]=req.body.donde.split("|")[0].split("=")[1]
+    obj["id_usuario"] = id_usuario
+    if (req.body.donde.split("|").length == 2 && req.body.donde.split("|")[1] == "") {
+      obj[req.body.donde.split("|")[0].split("=")[0]] = req.body.donde.split("|")[0].split("=")[1]
       donde.push(obj)
-    }else{
+    } else {
       console.log("es una consulta masiva")
       req.body.donde.split("|")
-      .map(x=>{
-        let a=x.split("=")[0]
-        let b=x.split("=")[1]
-        let obj = new Object()
-        obj[a]=b
-        donde.push(obj)
-      })
+        .map(x => {
+          let a = x.split("=")[0]
+          let b = x.split("=")[1]
+          let obj = new Object()
+          obj[a] = b
+          donde.push(obj)
+        })
     }
   }
 
 
   console.log(req.body.columnas.split("|")[2])
   console.log(req.body)
-  transportes.update({ 
+  transportes.update({
     nombre: req.body.columnas.split("|")[0],
     descripcion: req.body.columnas.split("|")[1],
     direccion: req.body.columnas.split("|")[2],
@@ -1150,21 +1379,21 @@ exports.actualizar_transporte = (req, res) => {//el usuario solo puede ver infor
     correo1: req.body.columnas.split("|")[5],
     correo2: req.body.columnas.split("|")[6],
     img: req.body.columnas.split("|")[8],
-    estado_validacion:"Sin Validacion",
-    estado:"Activo",
+    estado_validacion: "Sin Validacion",
+    estado: "Activo",
     id_usuario: id_usuario,
     id_tipo_tienda: req.body.columnas.split("|")[7],
-    }, 
-    {where: donde}
+  },
+    { where: donde }
   )
-  .catch(function (err) {
-    // handle error;
-    console.log(err)
-    res.status(200).send({error:err});
-  });
+    .catch(function (err) {
+      // handle error;
+      console.log(err)
+      res.status(200).send({ error: err });
+    });
 
   transportes.findAll({
-    attributes:[
+    attributes: [
       "id_tienda",
       "nombre",
       "descripcion",
@@ -1177,12 +1406,12 @@ exports.actualizar_transporte = (req, res) => {//el usuario solo puede ver infor
       "estado_validacion",
       "estado"
     ],
-    where:donde,
-    include:tipos_tienda
+    where: donde,
+    include: tipos_tienda
   }).then(data => {
     console.log("DATOS ACTUALIZADOS")
     //console.log(data)
-    res.status(200).send({success:data})
+    res.status(200).send({ success: data })
   })
 
 };
@@ -1203,67 +1432,67 @@ exports.actualizar_imagen_transporte = (req, res) => {//actualizar imagenes para
   });
   //console.log(req.files)
   //console.log('Body- ' + JSON.stringify(req.body));
-  
+
 
   //establecer si el formato de la imagen es el correcto
   //console.log("el archivo es de tipo " +req.files[0].mimetype.split("/")[0] + " y tiene la extension "+req.files[0].originalname.split(".")[req.files[0].originalname.split(".").length-1])
   //console.log(req.files.length)
-  if(req.files.length>0){
-    if(req.files[0].mimetype.split("/")[0]=='image'){
+  if (req.files.length > 0) {
+    if (req.files[0].mimetype.split("/")[0] == 'image') {
       //borramos la imagen temporal
       try {
         //console.log("./uploads/"+ req.body.img)
-        fs.unlinkSync("./uploads/"+ req.body.img)
-      } catch(err) {
+        fs.unlinkSync("./uploads/" + req.body.img)
+      } catch (err) {
         //console.error(err)
-        res.status(200).send({error:"No se pudo eliminar la imagen"})
+        res.status(200).send({ error: "No se pudo eliminar la imagen" })
       }
       //copiamos la imagen nueva con el nombre temporal
-      try{
+      try {
         /*console.log("++++++++++++++++++++++++++++")
         console.log(req.body.img.split(".")[0])
         console.log(req.files[0].originalname.split("."))
         console.log(req.files[0].originalname.split(".")[req.files[0].originalname.split(".").length-1])
         console.log(req.files[0].path)
         console.log("++++++++++++++++++++++++++++")
-        */ 
-        fs.createReadStream(req.files[0].path).pipe(fs.createWriteStream(req.files[0].destination+"/"+req.body.img.split(".")[0]+"."+req.files[0].originalname.split(".")[req.files[0].originalname.split(".").length-1]))
-      }catch(err) {
+        */
+        fs.createReadStream(req.files[0].path).pipe(fs.createWriteStream(req.files[0].destination + "/" + req.body.img.split(".")[0] + "." + req.files[0].originalname.split(".")[req.files[0].originalname.split(".").length - 1]))
+      } catch (err) {
         console.error(err)
       }
       //eliminamos la imagen original
       try {
         fs.unlinkSync(req.files[0].path)
-      } catch(err) {
+      } catch (err) {
         console.error(err)
       }
       //ahora hay que actualizar el campo en la base de datos para anunciar que la imagen ya existe
       //req.body.img+"."+req.files[0].originalname.split(".")[req.files[0].originalname.split(".").length-1]) nombre del archivo en la base de datos
-      let nueva_imagen=req.body.img.split(".")[0]+"."+req.files[0].originalname.split(".")[req.files[0].originalname.split(".").length-1]
-      transportes.update({ 
+      let nueva_imagen = req.body.img.split(".")[0] + "." + req.files[0].originalname.split(".")[req.files[0].originalname.split(".").length - 1]
+      transportes.update({
         img: nueva_imagen
       }, {
-      where: {
+        where: {
           id_tienda: req.body.id_tienda
         }
       }).then(
-        data=>{
+        data => {
           console.log("he guardado los datos")
         }
       );
 
-      return res.status(200).send({success:"imagen cargada correctamente"})
-    }else{
+      return res.status(200).send({ success: "imagen cargada correctamente" })
+    } else {
       try {
         fs.unlinkSync(req.files[0].path)
-      } catch(err) {
+      } catch (err) {
         console.error(err)
       }
-      return res.status(200).send({error:"el archivo no era una imagen"})
+      return res.status(200).send({ error: "el archivo no era una imagen" })
     }
   }
-  
-  res.status(200).send({success:"imagen actualizada exitosamente"});
+
+  res.status(200).send({ success: "imagen actualizada exitosamente" });
 };
 //CREAR TRANSPORTE
 exports.crear_transporte = (req, res) => {//el usuario solo puede ver informacion sobre si mismo 
@@ -1281,19 +1510,19 @@ exports.crear_transporte = (req, res) => {//el usuario solo puede ver informacio
     //next();
   });
 
-  
+
   let date_ob = new Date();
 
   const crypto = require('crypto')
   var timestamp = new Date().getTime();
   //console.log(timestamp.toString(10))
-  nombre_archivo=crypto.createHash('md5').update(timestamp.toString(10)).digest("hex");
+  nombre_archivo = crypto.createHash('md5').update(timestamp.toString(10)).digest("hex");
   //copiar imagen temporal con el nombre definitivo
-  fs.createReadStream("./uploads/tienda_predeterminada.png").pipe(fs.createWriteStream("./uploads/"+nombre_archivo+".png"));
+  fs.createReadStream("./uploads/tienda_predeterminada.png").pipe(fs.createWriteStream("./uploads/" + nombre_archivo + ".png"));
   //console.log(nombre_archivo)
   //console.log("./uploads/"+nombre_archivo+".png")
   //console.log(req.body.columnas.split("|"))
-  transportes.create({ 
+  transportes.create({
     nombre: req.body.columnas.split("|")[0],
     descripcion: req.body.columnas.split("|")[1],
     direccion: req.body.columnas.split("|")[2],
@@ -1301,22 +1530,22 @@ exports.crear_transporte = (req, res) => {//el usuario solo puede ver informacio
     telefono2: req.body.columnas.split("|")[4],
     correo1: req.body.columnas.split("|")[5],
     correo2: req.body.columnas.split("|")[6],
-    img: nombre_archivo+".png",
-    estado_validacion:"Sin Validacion",
-    estado:"Activo",
+    img: nombre_archivo + ".png",
+    estado_validacion: "Sin Validacion",
+    estado: "Activo",
     id_usuario: id_usuario,
     id_tipo_tienda: req.body.columnas.split("|")[7],
-    }
+  }
   ).then(
-    data=>{
+    data => {
       //esta salida devuelve los datos pertenecientes al ultimo ingreso, de esta manera, es posible hacer un update para guardar la imagen luego usando otro protoculo
       //console.log("resultado:" +data)
-      res.status(200).send({success:data});
+      res.status(200).send({ success: data });
     }
   ).catch(function (err) {
     // handle error;
     //console.log(err)
-    res.status(200).send({error:err});
+    res.status(200).send({ error: err });
   });
 };
 //CONTROLADORES DE SOCIAL
@@ -1340,19 +1569,19 @@ exports.crear_transporte = (req, res) => {//el usuario solo puede ver informacio
     //next();
   });
 
-  
+
   let date_ob = new Date();
 
   const crypto = require('crypto')
   var timestamp = new Date().getTime();
   //console.log(timestamp.toString(10))
-  nombre_archivo=crypto.createHash('md5').update(timestamp.toString(10)).digest("hex");
+  nombre_archivo = crypto.createHash('md5').update(timestamp.toString(10)).digest("hex");
   //copiar imagen temporal con el nombre definitivo
-  fs.createReadStream("./uploads/tienda_predeterminada.png").pipe(fs.createWriteStream("./uploads/"+nombre_archivo+".png"));
+  fs.createReadStream("./uploads/tienda_predeterminada.png").pipe(fs.createWriteStream("./uploads/" + nombre_archivo + ".png"));
   //console.log(nombre_archivo)
   //console.log("./uploads/"+nombre_archivo+".png")
   //console.log(req.body.columnas.split("|"))
-  transportes.create({ 
+  transportes.create({
     nombre: req.body.columnas.split("|")[0],
     descripcion: req.body.columnas.split("|")[1],
     direccion: req.body.columnas.split("|")[2],
@@ -1360,21 +1589,21 @@ exports.crear_transporte = (req, res) => {//el usuario solo puede ver informacio
     telefono2: req.body.columnas.split("|")[4],
     correo1: req.body.columnas.split("|")[5],
     correo2: req.body.columnas.split("|")[6],
-    img: nombre_archivo+".png",
-    estado_validacion:"Sin Validacion",
-    estado:"Activo",
+    img: nombre_archivo + ".png",
+    estado_validacion: "Sin Validacion",
+    estado: "Activo",
     id_usuario: id_usuario,
     id_tipo_tienda: req.body.columnas.split("|")[7],
-    }
+  }
   ).then(
-    data=>{
+    data => {
       //esta salida devuelve los datos pertenecientes al ultimo ingreso, de esta manera, es posible hacer un update para guardar la imagen luego usando otro protoculo
       //console.log("resultado:" +data)
-      res.status(200).send({success:data});
+      res.status(200).send({ success: data });
     }
   ).catch(function (err) {
     // handle error;
     //console.log(err)
-    res.status(200).send({error:err});
+    res.status(200).send({ error: err });
   });
 };

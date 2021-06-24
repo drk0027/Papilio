@@ -42,4 +42,16 @@ module.exports = function(app) {
     "/api/public/agregar_contacto",
     controller.agregar_contacto
   );
+  app.post(//Ver memoria
+    "/api/public/ver_memoria",
+    controller.ver_memoria
+  );
+  app.get(//Ver fotos
+    "/api/public/ver_foto/:nombre",
+    controller.ver_foto
+  );
+  app.post(//Ver memoria 
+    "/api/public/ver_memorias",
+    controller.ver_memorias
+  );
 };

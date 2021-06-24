@@ -28,6 +28,12 @@ db.roles = require("./roles.model.js")(sequelize, Sequelize);
 db.usuarios = require("./usuarios.model.js")(sequelize, Sequelize);
 db.sistemas = require("./sistemas.model.js")(sequelize, Sequelize);
 db.contactos = require("./contactos.model.js")(sequelize, Sequelize);
+db.sendmail = require("./sendmail.model.js")(sequelize, Sequelize);
+db.archivos = require("./archivos.model.js")(sequelize, Sequelize);
+db.mensajes = require("./mensajes.model.js")(sequelize, Sequelize);
+db.galerias = require("./galerias.model.js")(sequelize, Sequelize);
+db.memorias = require("./memorias.model.js")(sequelize, Sequelize);
+db.fotos = require("./fotos.model.js")(sequelize, Sequelize);
 
 /* db.tiendas = require("./tiendas.model.js")(sequelize, Sequelize);
 db.formas_de_pago = require("./formas_de_pago.model.js")(sequelize, Sequelize);
@@ -44,102 +50,52 @@ db.roles.belongsToMany(db.usuarios, {
   through: "rol_usuario",
   foreignKey: "id_rol",
   otherKey: "id_usuario"
-});
+}, { onDelete: 'cascade' });
 db.usuarios.belongsToMany(db.roles, {
   through: "rol_usuario",
   foreignKey: "id_usuario",
   otherKey: "id_rol"
-});
+}, { onDelete: 'cascade' });
 
-/*
-//Transportes <- Usuario : Cada usuario puede crear un nuevo transporte
-db.transportes.belongsTo(db.usuarios,{
+//mensajes pertenecen a un usuario
+db.mensajes.belongsTo(db.usuarios,{
   foreignKey: 'id_usuario',
-});
+}, { onDelete: 'cascade' });
 
-//Tienda <- Usuario : cada tienda tiene un solo usuario propietario
-db.tiendas.belongsTo(db.usuarios,{
-  foreignKey: 'id_usuario'
-});
-
-//Tienda <- tienda_forma_pago -> Forma de pago : cada tienda puede tener varias formas de pago
-db.tiendas.belongsToMany(db.formas_de_pago, {
-  through: "tienda_forma_pago",
-  foreignKey: "id_tienda",
-  otherKey: "id_forma_de_pago"
-});
-db.formas_de_pago.belongsToMany(db.tiendas, {
-  through: "tienda_forma_pago",
-  foreignKey: "id_forma_de_pago",
-  otherKey: "id_tienda"
-});
-
-//Tienda <- Tipo_tienda : cada tienda solo tiene un tipo de tienda, indicando si es un bazar, un pequeño local, mini mercado y asi
-db.tiendas.belongsTo(db.tipos_tienda,{
-  foreignKey: 'id_tipo_tienda'
-});
-
-//Carritos <- Oferta <- Usuario : cada carrito posee solo quien hizo la compra, que compró y que cantidad compró
-db.carritos.belongsTo(db.usuarios,{
+//archivos pertenecen a un usuario
+db.archivos.belongsTo(db.usuarios,{
   foreignKey: 'id_usuario',
-});
+}, { onDelete: 'cascade' });
 
-db.carritos.belongsTo(db.ofertas,{
-  foreignKey: 'id_oferta',
-});
+//archivos pertenecen a un mensaje
+db.mensajes.belongsTo(db.archivos,{
+  foreignKey: 'id_archivo',
+}, { onDelete: 'cascade' });
 
-//Ordenes <- Oferta <- Usuario <- Negocio : Cada orden posee el negocio a quien corresponde la orden, quien realizo la orden , que compró y cuanto compró
-db.ordenes.belongsTo(db.usuarios,{
+//galerias pertenece a memorias
+db.memorias.belongsTo(db.galerias,{
+  foreignKey: 'id_galeria',
+}, { onDelete: 'cascade' });
+//usuarios pertenece a memorias
+db.memorias.belongsTo(db.usuarios,{
   foreignKey: 'id_usuario',
-});
+}, { onDelete: 'cascade' });
+//fotos pertenece a memorias
+db.memorias.belongsTo(db.fotos,{
+  foreignKey: 'id_foto',
+}, { onDelete: 'cascade' });
 
-db.ordenes.belongsTo(db.ofertas,{
-  foreignKey: 'id_oferta',
-});
-
-//Solicitudes <- Usuario: Cada solicitud pertenece a un usuario, las demandas deben ser respondidas por acuerdos internos y marcadas como completadas
-db.solicitudes.belongsTo(db.usuarios,{
-  foreignKey: 'id_usuario',
-});
-
-//Respuestas <- Demanda <- Usuario: Cada respuesta pertenece a una demanda y pertenece a un usuario
-db.respuestas.belongsTo(db.usuarios,{
-  foreignKey: 'id_usuario',
-});
-
-db.respuestas.belongsTo(db.solicitudes,{
-  foreignKey: 'id_demanda',
-});
-
-//Tienda <- comentario_tienda -> Comentarios : cada tienda puede tener un comentario por usuario
-db.tiendas.belongsToMany(db.comentarios, {
-  through: "comentarios_tienda",
-  foreignKey: "id_tienda",
-  otherKey: "id_comentario"
-});
-db.comentarios.belongsToMany(db.tiendas, {
-  through: "comentarios_tienda",
-  foreignKey: "id_comentario",
-  otherKey: "id_tienda"
-});
-
-//ofertas <- Tienda : cada oferta pertenece a una tienda
-db.ofertas.belongsTo(db.tiendas,{
-  foreignKey: 'id_tienda'
-});
-
-/*
-//Productos <- Tienda : cada producto pertenece a una tienda
-db.productos.belongsTo(db.tiendas,{
-  foreignKey: 'id_tienda'
-});
-
-//Servicios <- Tienda : cada servicio pertenece a una tienda
-db.servicios.belongsTo(db.tiendas,{
-  foreignKey: 'id_tienda'
-});
-
-*/
+//foto-galeria
+db.galerias.belongsToMany(db.fotos, {
+  through: "fotos_galerias",
+  foreignKey: "id_galerias",
+  otherKey: "id_fotos"
+}, { onDelete: 'cascade' });
+db.fotos.belongsToMany(db.galerias, {
+  through: "fotos_galerias",
+  foreignKey: "id_fotos",
+  otherKey: "id_galeria"
+}, { onDelete: 'cascade' });
 
 db.ROLES = ["Usuario", "Admin", "Moderador"];
 

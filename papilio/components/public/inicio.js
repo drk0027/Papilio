@@ -135,7 +135,6 @@ export default function inicio() {
             </Col>
           </Row>
         </Container>
-        hay oferta de productos y servicios
         </>
     )
 }

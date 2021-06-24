@@ -18,7 +18,7 @@ export default function Layout({
   info_sistema,
   token
 }) {
-  console.log(info_sistema)
+  //console.log(info_sistema)
   //console.log(login)
   return (
     <div>
@@ -457,6 +457,13 @@ export default function Layout({
   border-width: 5px;
   border-style: solid;
   border-color: #555 transparent transparent transparent;
+}
+
+.tarjeta_centrada  {
+  align-items: center;
+}
+.imagen_pequeña {
+  width: 300px;
 }
 
 /* Show the tooltip text when you mouse over the tooltip container */

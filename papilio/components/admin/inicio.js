@@ -27,9 +27,9 @@ export default function inicio(props) {
     })
 
     function NN(valor) {
-        console.log(valor)
+        //console.log(valor)
         if (valor == null) {
-            console.log("hay un valor nulo")
+            //console.log("hay un valor nulo")
             return ""
         } else {
             return valor
@@ -53,13 +53,13 @@ export default function inicio(props) {
 
     //control de cambio en los formularios
     function onChangeHandler(e) {
-        console.log(e.currentTarget.name)
-        console.log(e.currentTarget.value)
+        //console.log(e.currentTarget.name)
+        //console.log(e.currentTarget.value)
         SetFormulario({
             ...Formulario,
             [e.currentTarget.name]: e.currentTarget.value
         })
-        console.log(Formulario)
+        //console.log(Formulario)
         //setNombre_empresa()
 
 

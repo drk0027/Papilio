@@ -26,47 +26,23 @@ export default function NavBar(props) {
                 <Dropdown.Toggle as={NavLink}>Sistema</Dropdown.Toggle>
                 <Dropdown.Menu>
                     <Dropdown.Item><Link href="/">Configuracion</Link></Dropdown.Item>
-                    <Dropdown.Item><Link href="/">Seguridad</Link></Dropdown.Item>
-                    <Dropdown.Item><Link href="/">Pagina de Inicio</Link></Dropdown.Item>
-                    <Dropdown.Item><Link href="/">Pagina de Ofertas</Link></Dropdown.Item>
-                    <Dropdown.Item><Link href="/">Pagina de Contacto</Link></Dropdown.Item>
+                    <Dropdown.Item><Link href="/Sistema/seguridad">Seguridad</Link></Dropdown.Item>
+                    <Dropdown.Item><Link href="/Sistema/confsendmail">Configurar envio de E-Mail</Link></Dropdown.Item>
+                    <Dropdown.Item><Link href="/Formularios/ver_formularios">Solicitudes de informacion </Link></Dropdown.Item>
+                    <Dropdown.Item><Link href="/Sistema/archivos">Administrar Archivos </Link></Dropdown.Item>
+                    <Dropdown.Item><Link href="/Sistema/galerias">Administrar Galerias </Link></Dropdown.Item>
                 </Dropdown.Menu>
             </Dropdown>
             <Dropdown as={NavItem}>
                 <Dropdown.Toggle as={NavLink}>Usuarios</Dropdown.Toggle>
                 <Dropdown.Menu>
-                    <Dropdown.Item><Link href="/">Cuentas de Usuario</Link></Dropdown.Item>
-                    <Dropdown.Item><Link href="/">Archivos de Usuario</Link></Dropdown.Item>
-                    
+                    <Dropdown.Item><Link href="/Sistema/cuentas">Cuentas de Usuario</Link></Dropdown.Item>
                 </Dropdown.Menu>
             </Dropdown>
             <Dropdown as={NavItem}>
-                <Dropdown.Toggle as={NavLink}>Ofertas</Dropdown.Toggle>
+                <Dropdown.Toggle as={NavLink}>Memorial</Dropdown.Toggle>
                 <Dropdown.Menu>
-                    <Dropdown.Item><Link href="/">Crear Ofertas</Link></Dropdown.Item>
-                    <Dropdown.Item><Link href="/">Ver Pedidos</Link></Dropdown.Item>
-                    <Dropdown.Item><Link href="/">Ver algo mas que se me ocurra</Link></Dropdown.Item>
-                </Dropdown.Menu>
-            </Dropdown>
-            <Dropdown as={NavItem}>
-                <Dropdown.Toggle as={NavLink}>Transporte</Dropdown.Toggle>
-                <Dropdown.Menu>
-                    <Dropdown.Item><Link href="/Perfil/transporte">Transporte</Link></Dropdown.Item>
-                    <Dropdown.Item>Historial</Dropdown.Item>
-                </Dropdown.Menu>
-            </Dropdown>
-            <Dropdown as={NavItem}>
-                <Dropdown.Toggle as={NavLink}>Social</Dropdown.Toggle>
-                <Dropdown.Menu>
-                    <Dropdown.Item><Link href="/Perfil/social">Solicitudes</Link></Dropdown.Item>
-                    <Dropdown.Item>Respuestas</Dropdown.Item>
-                </Dropdown.Menu>
-            </Dropdown>
-            <Dropdown as={NavItem}>
-                <Dropdown.Toggle as={NavLink}>Mensajeria</Dropdown.Toggle>
-                <Dropdown.Menu>
-                    <Dropdown.Item>Bandeja de entrada</Dropdown.Item>
-                    <Dropdown.Item>Bandeja de salida</Dropdown.Item>
+                    <Dropdown.Item><Link href="/Memorial/ver_memorias">Ver Entradas</Link></Dropdown.Item>
                 </Dropdown.Menu>
             </Dropdown>
         </Nav>
