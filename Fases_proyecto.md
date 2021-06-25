@@ -245,7 +245,7 @@ Los elementos que conforman esta fase son: dashboard del usuario, gestión de do
 
 **Vista Móvil**
 
-![inicio_public](./screenshot/m-u-perfil.png)
+![inicio_public](./screenshot/m-u-perfil.png) 
 
 ## Cuarta fase: Integración de los servicios de Memorial
 

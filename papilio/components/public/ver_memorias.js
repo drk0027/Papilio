@@ -172,7 +172,7 @@ export default function inicio(props) {
                         {Tabla.contenido.map(resp => (
                             <Col >
                                 <Card className={"tarjeta_centrada"}>
-                                    <Link href={"/Memorial/"+resp.slug}><Card.Img variant="top" src={"http://localhost:8081/api/public/ver_foto/" + resp.foto.nombre_original} className={"imagen_pequeña"} /></Link>
+                                    <Link href={"/Memorial/"+resp.slug}><Card.Img variant="top" src={global.server+"api/public/ver_foto/" + resp.foto.nombre_original} className={"imagen_pequeña"} /></Link>
                                     <Card.Body>
                                         <Card.Text className={"text-center"}>
                                             <>

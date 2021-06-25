@@ -42,7 +42,8 @@
   - [22/06/2021](#22062021)
   - [23/06/2021](#23062021)
     - [**Finalizada la fase 4** (vease **Fases del proyecto**)](#finalizada-la-fase-4-vease-fases-del-proyecto)
-  - [Pendiente para mañana](#pendiente-para-mañana)
+  - [24/06/2021](#24062021)
+  - [25/06/2021](#25062021)
   - [Pendiente:](#pendiente)
   - [Propuestas de mejora](#propuestas-de-mejora)
 
@@ -479,10 +480,13 @@ Sin avances por circunstancias de fuerza mayor
 - Eliminado nodo html ModalData.createdAt de la pagina inicio para usuario normal
 ### **Finalizada la fase 4** (vease [**Fases del proyecto**](./Fases_proyecto.md))  
 
+## 24/06/2021
+- Agregadas configuraciones iniciales para sendmail
+- Agregadas las configuraciones iniciales del sistema
+- Agregado el usuario administrador inicial del sistema 
 
-## Pendiente para mañana
-- crear el panel de administracion de usuario para las memorias
-- reparar pantalla de contactos y quienes somos para usuarios publicos
+## 25/06/2021
+- Eliminadas configuraciones de seguridad para subir a github
 
 ## Pendiente:
 - crear un mensaje inicial de bienvenida a los usuarios del sistema
@@ -500,6 +504,7 @@ Sin avances por circunstancias de fuerza mayor
   - crear pagina parametrizada de ver memorias
 - Crear carga inicial para una foto predeterminada
 - Actualizar modulo del sistema, para agregar funcion de base_url del sistema y base_url de la api
+- Configurar nombre de usuario para el administrador 
 
 
 ## Propuestas de mejora
