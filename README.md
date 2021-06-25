@@ -8,6 +8,11 @@
   - [Configuracion de informacion del frontEnd para la API](#configuracion-de-informacion-del-frontend-para-la-api)
   - [Configuracion de cuenta de administrador](#configuracion-de-cuenta-de-administrador)
 - [Configuracion de Frontend](#configuracion-de-frontend)
+- [Puesta en marcha](#puesta-en-marcha)
+  - [Backend](#backend)
+  - [Frontend](#frontend)
+    - [depuracion](#depuracion)
+    - [produccion](#produccion)
 
 
 # Sistema de gestion para empresas funerarias "Papilio"
@@ -101,4 +106,24 @@ En el directorio _papilio/lib/_ el archivo Vars.js debe contener la direccion de
 
     global.server="http://localhost:8081/";
     global.base_url="http://localhost:3000/";
+
+# Puesta en marcha
+
+## Backend
+usar nodemon en el directorio API-papilio
+
+## Frontend
+
+### depuracion
+
+usar npm run dev en el directorio papilio en caso de hacer pruebas
+
+### produccion
+
+Primero hay que compilar la pagina con run build y luego ejecutar run start
+
+npm run build
+npm run start
+
+
 
