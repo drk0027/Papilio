@@ -44,6 +44,11 @@
     - [**Finalizada la fase 4** (vease **Fases del proyecto**)](#finalizada-la-fase-4-vease-fases-del-proyecto)
   - [24/06/2021](#24062021)
   - [25/06/2021](#25062021)
+  - [28/06/2021](#28062021)
+  - [29/06/2021](#29062021)
+  - [30/06/2021](#30062021)
+  - [02/07/2021](#02072021)
+  - [08/07/2021](#08072021)
   - [Pendiente:](#pendiente)
   - [Propuestas de mejora](#propuestas-de-mejora)
 
@@ -487,24 +492,42 @@ Sin avances por circunstancias de fuerza mayor
 
 ## 25/06/2021
 - Eliminadas configuraciones de seguridad para subir a github
+- Creado manual de incicializacion
+- Inicializado el servidor de demostracion en papilio.interlan.dev
+
+## 28/06/2021
+- Bosquejado del manual de usuario:
+  - Manual de usuario Para usuario administrador
+  - Manual de usuario para cliente
+  - Manual de usuario para publigo general
+  - Guia de uso del sistema de APIs
+  - Guia de uso para el sistema de paginas del frontend
+  - Guia de creacion de componentes y paginas para nuevos elementos
+  - Guia de uso de las barras de menu
+  - Guias de uso del sistema de grid basado en bootstrap
+
+## 29/06/2021
+- Completado Manual de usuario
+- Completado Guia de creacion de paginas y componentes
+- Completado Guia de uso de API
+- Completado Guia de creacion de API
+
+## 30/06/2021
+- Terminado Manual del usuario
+
+## 02/07/2021
+- Correccion menor en la pagina cuentas, al presionar el boton de enviar mensaje, cargaba el modal de crear memoria
+
+## 08/07/2021
+- Finalizado manual del usuario
+- Finalizado capitulo 4 de la memoria
+- Finalizado capitulo 5 de la memoria
+- Ultima dosis de la vacuna del covid.
+
 
 ## Pendiente:
-- crear un mensaje inicial de bienvenida a los usuarios del sistema
-- crear una carga inicial para las configuraciones del sistema y para el usuario administrador(entradas iniciales en las respectivas tablas)
-- crear una explicacion del funcionamiento del sistema de plantillas y componentes para las pantallas publicas
-- crear una pagina para las configuraciones de las entradas del sistema memorial
-- crear un componente para crear,visualizar,editar y eliminar entradas del sistema memorial
-  - terminar pantalla de ver_memorias
-  - crear componente actualizar memorias
-  - crear componente generar url
-  - crear componente generar codigo qr
-  - crear componente ver memorias para el usuario
-  - crear componente actualizar memorias para el usuario
-  - crear componente previsualizar memorias para el usuario
-  - crear pagina parametrizada de ver memorias
-- Crear carga inicial para una foto predeterminada
-- Actualizar modulo del sistema, para agregar funcion de base_url del sistema y base_url de la api
-- Configurar nombre de usuario para el administrador 
+- Crear una vista de lista de mensajes enviados por el administrador al cliente
+- Agregar alertas antes de borrar registros
 
 
 ## Propuestas de mejora
@@ -521,3 +544,4 @@ Sin avances por circunstancias de fuerza mayor
 - Permitir al usuario crear galerias de fotos de sus personas fallecidas
 - Permitir al usuario crear eventos
 - Actualizar el layout de forma que permita a las redes sociales cargar una vista previa coherente
+- Permitir agregar videos a los perfiles memoriales mediante transmision por stream o vinculacion mediante youtube y otros servicios web.

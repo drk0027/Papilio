@@ -7,6 +7,7 @@
   - [Configuracion inicial servidor de API](#configuracion-inicial-servidor-de-api)
   - [Configuracion de informacion del frontEnd para la API](#configuracion-de-informacion-del-frontend-para-la-api)
   - [Configuracion de cuenta de administrador](#configuracion-de-cuenta-de-administrador)
+  - [Configuracion del puerto de escucha del backend](#configuracion-del-puerto-de-escucha-del-backend)
 - [Configuracion de Frontend](#configuracion-de-frontend)
 - [Puesta en marcha](#puesta-en-marcha)
   - [Backend](#backend)
@@ -86,7 +87,8 @@ En la linea 617 se puede cambiar el mensaje informativo que recibirá el usuario
 
 ## Configuracion de cuenta de administrador
 
-En el directorio _API-papilio/_ modificar el archivo index.js en la linea 88
+En el directorio _API-papilio/_ modificar el archivo index.js en la linea 88 
+username y email son el mismo campo
 
     Usuarios.create({
         nombre_usuario: papilio,
@@ -100,6 +102,15 @@ En el directorio _API-papilio/_ modificar el archivo index.js en la linea 88
         res.status(200).send({ error: err.message });
     });
 
+## Configuracion del puerto de escucha del backend
+
+En el directorio _API-papilio/_ modificar el archivo index en la linea 112
+
+    const PORT = process.env.PORT || 8081;
+    app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}.`);
+    });
+
 # Configuracion de Frontend
 
 En el directorio _papilio/lib/_ el archivo Vars.js debe contener la direccion del backend
@@ -110,7 +121,7 @@ En el directorio _papilio/lib/_ el archivo Vars.js debe contener la direccion de
 # Puesta en marcha
 
 ## Backend
-usar nodemon en el directorio API-papilio
+usar _nodemon_ o _pm2_ en el directorio API-papilio
 
 ## Frontend
 

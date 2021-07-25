@@ -95,14 +95,8 @@ export default function inicio(props) {
         SetModalmensaje(false)
     }
     function abrir_modal_mensaje(to) {
-        
         SetModalmensaje(true)
     }
-    function abrir_modal_mensaje(to) {
-        
-        SetModalmemoria(true)
-    }
-
 
     function editar(e) {
         //console.log(e.currentTarget.name)

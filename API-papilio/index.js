@@ -3,12 +3,14 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 const chalk = require('chalk');
 const app = express();
+var bcrypt = require("bcryptjs");
 
 const db = require("./app/models");
 const SendmailTransport = require("nodemailer/lib/sendmail-transport");
 const Roles = db.roles;
 const Sistemas = db.sistemas;
-const Sendmails = db.sendmails;
+const Sendmail = db.sendmail;
+const Usuarios = db.usuarios;
 // const tipos_tienda = db.tipos_tienda;
 // const formas_de_pago = db.formas_de_pago;
 
@@ -50,17 +52,23 @@ function initial() {
   Roles.create({
     id_rol: 1,
     nombre: "Admin"
-  });
+  }).catch(function (err) {
+    console.log(err);
+  })
 
   Roles.create({
     id_rol: 2,
     nombre: "Usuario"
-  });
+  }).catch(function (err) {
+    console.log(err);
+  })
 
   Roles.create({
     id_rol: 3,
     nombre: "Invitado"
-  });
+  }).catch(function (err) {
+    console.log(err);
+  })
 
   Sistemas.create({
     nombre_empresa: "Papilio",
@@ -74,7 +82,7 @@ function initial() {
     console.log(err);
   })
 
-  Sendmails.create({
+  Sendmail.create({
     host: "sendmail@papilio.com",
     port: "26",
     user: "sendmail@papilio.com",
@@ -86,9 +94,9 @@ function initial() {
   })
 
   Usuarios.create({
-    nombre_usuario: papilio,
-    username: papilio,
-    email: papilio,
+    nombre_usuario: "papilio",
+    username: "papilio",
+    email: "papilio",
     password: bcrypt.hashSync("admin", 8)
   }).then(user => {
     user.setRoles("1").then(() => {
